@@ -6,11 +6,11 @@ Estilos:
 
 Entidades 
 ```
-Jugadores(Id, Nombre, EquipoId)
-Equipos(Id, Nombre, LigaId)
-Ligas(Id, Nombre, PaisId)
-Paises(Id, Nombre)
-Partidos(Id, LigaId, Resultado, IdLocal, IdVicitante, GolesLocal, temporada)
+Jugador(Id, Nombre, EquipoId)
+Equipo(Id, Nombre, LigaId)
+Liga(Id, Nombre, PaisId)
+Paise(Id, Nombre)
+Partido(Id, LigaId, Resultado, IdLocal, IdVicitante, GolesLocal, temporada)
 ```
 
 Relaciones (es redundante, las entidades son relaciones, pero es para colocar tablas que sólo representan una relación entre dos entidades, particularmente "una a muchas")
