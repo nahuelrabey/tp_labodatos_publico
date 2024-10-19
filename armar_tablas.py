@@ -54,7 +54,7 @@ def crearLiga():
     consulta_liga = '''SELECT country_id as Id_Liga, name FROM liga_e '''
 
     liga = duckdb.sql(consulta_liga).df()
-    liga.to_csv(carpeta_finales + "liga.csv")
+    liga.to_csv(carpeta_finales + "liga.csv", index=False)
 
 def crearPartido():
     #Creamos una tabla solo con los atributos necesarios
@@ -80,7 +80,7 @@ def crearPartido():
     partido = duckdb.sql('''SELECT Id_Partido, Fecha, Temporada,  Id_Local,
                             Id_Visitante, Resultado, Id_Liga FROM partido_ok''').df()
 
-    partido.to_csv(carpeta_finales + "./partido.csv")
+    partido.to_csv(carpeta_finales + "./partido.csv", index=False)
     return partido
 
 def crearPlantel():
@@ -110,31 +110,32 @@ def crearPlantel():
     local_0 = pd.melt(partido_e, 
                     id_vars=['match_api_id', 'home_team_api_id','season'],
                     value_vars=[f'home_player_{i}' for i in range(1, 12)],
-                    value_name='Id_jugador').drop(columns='variable') 
+                    value_name='Id_Jugador').drop(columns='variable') 
 
-    local = duckdb.sql('''SELECT home_team_api_id AS Id_Equipo, Id_jugador, match_api_id AS Id_partido, season AS Temporada FROM local_0 ''').df()
+    local = duckdb.sql('''SELECT home_team_api_id AS Id_Equipo, Id_Jugador, match_api_id AS Id_partido, season AS Temporada FROM local_0 ''').df()
 
     # Idem jugadores visitantes
 
     visitante_0 = pd.melt(partido_e, 
                     id_vars=['match_api_id', 'away_team_api_id', 'season'],
                     value_vars=[f'away_player_{i}' for i in range(1, 12)],
-                    value_name='Id_jugador').drop(columns='variable') 
+                    value_name='Id_Jugador').drop(columns='variable') 
 
-    visitante = duckdb.sql('''SELECT away_team_api_id AS Id_Equipo, Id_jugador, match_api_id AS Id_partido, season AS Temporada FROM visitante_0 ''').df()
+    visitante = duckdb.sql('''SELECT away_team_api_id AS Id_Equipo, Id_Jugador, match_api_id AS Id_partido, season AS Temporada FROM visitante_0 ''').df()
 
     #Uno los DF y elimino duplicados
     jugadores = pd.concat([local, visitante], ignore_index=True) 
 
-    plantel_0 = jugadores[['Id_jugador','Id_Equipo', 'Temporada']].drop_duplicates()
+    plantel_0 = jugadores[['Id_Jugador','Id_Equipo', 'Temporada']].drop_duplicates()
 
     plantel = plantel_0.sort_values(by=['Id_Equipo','Temporada'])
-    plantel.to_csv(carpeta_finales + "plantel.csv")
+    plantel["Id_Jugador"] = plantel["Id_Jugador"].astype(int)
+    plantel.to_csv(carpeta_finales + "plantel.csv", index=False)
 
 def crearJugador():
     Jugador = jugador_e[["player_api_id", "player_name", "height", "weight"]]
     Jugador = Jugador.rename(columns={"player_api_id":"Id_Jugador", "player_name":"Nombre", "height":"Altura", "weight":"Peso"})
-    Jugador.to_csv(carpeta_finales+"jugador.csv")
+    Jugador.to_csv(carpeta_finales+"jugador.csv", index=False)
 
 def crearJugadorAtributosVariables():
     jugadores_atributos_ok = atributos_e
@@ -147,16 +148,16 @@ def crearJugadorAtributosVariables():
         "date": "Fecha"
     })
 
-    Jugador_Atributos_Variables.to_csv(carpeta_finales+"atributos.csv")
+    Jugador_Atributos_Variables.to_csv(carpeta_finales+"atributos.csv", index=False)
     
 liga = 21518
 def crearLigaEspañola(partido: pd.DataFrame, equipo:pd.DataFrame):
-    partido_españa = partido[partido["Id_Liga"] == liga].set_index("Id_Partido")
-    equipo_españa = equipo[equipo["Id_Liga"] == liga].set_index("Id_Equipo")
+    partido_españa = partido[partido["Id_Liga"] == liga]
+    equipo_españa = equipo[equipo["Id_Liga"] == liga]
     print(equipo.info())
     print(equipo_españa.info())
-    partido_españa.to_csv(carpeta_finales + "partido_españa.csv")
-    equipo_españa.to_csv(carpeta_finales + "equipo_españa.csv")
+    partido_españa.to_csv(carpeta_finales + "partido_españa.csv", index=False)
+    equipo_españa.to_csv(carpeta_finales + "equipo_españa.csv", index=False)
 
 equipo = crearEquipo()
 partido = crearPartido()
