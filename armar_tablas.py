@@ -78,7 +78,7 @@ def crearPartido():
 
     partido_ok['Resultado'] = partido_ok['Valor'].apply(clasificador)
     partido = duckdb.sql('''SELECT Id_Partido, Fecha, Temporada,  Id_Local,
-                            Id_Visitante, Resultado, Id_Liga FROM partido_ok''').df()
+                            Id_Visitante, Resultado, Id_Liga, home_team_goal as Gol_local, away_team_goal as Gol_visitante FROM partido_ok''').df()
 
     partido.to_csv(carpeta_finales + "./partido.csv", index=False)
     return partido
